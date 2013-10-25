@@ -48,10 +48,7 @@ game.Soldier.prototype.update = function(dt) {
     }
     var movevect = [0, 0];
     
-    var autokill = this.findSoldiersNearby();
-    if (autokill.length > 0) {
-        this.fire(autokill[0]);
-    } else if (this.killtarget != -1) {
+    // else if (this.killtarget != -1) {
         /*var coll = this.getOpposingSoldiers();
         if (calcDistance(calcVector(this.pos, coll[this.killtarget].pos)) > gWorld.soldier_maxrange) {
             //move towards target
@@ -59,7 +56,8 @@ game.Soldier.prototype.update = function(dt) {
         } else {
             this.fire(this.killtarget);
         }*/
-    } else if (this.moveto.length > 0) {
+    //} else
+    if (this.moveto.length > 0) {
         if (Math.abs(this.moveto[0][0] - this.pos[0]) > 2 || Math.abs(this.moveto[0][1] - this.pos[1]) > 2) {
             movevect = calcNormalVector(this.moveto[0], this.pos);
         } else {
@@ -67,15 +65,45 @@ game.Soldier.prototype.update = function(dt) {
         }
     }
     game.Thing.prototype.update.call(this, dt, movevect, 2000);
-};
-game.Soldier.prototype.accuracy = function(dt) {
-    return 0.8;
-};
-game.Soldier.prototype.findSoldiersNearby = function() {
-    var coll = gWorld.enemies;
-    if (this.enemy) {
-        coll = gWorld.friendlies;
+    
+    var autokill = this.findSoldiersNearby();
+    if (autokill.length > 0) {
+        if (this.fired < Date.now() - 1000) {
+            this.fire(autokill[0], movevect);
+        }
     }
+};
+game.Soldier.prototype.fire = function(i, movevect) {
+    var tohit = 0.7;
+    var enemy = this.getOpposingSoldiers()[i];
+    if (movevect[0] != 0 || movevect[1] != 0) {
+        tohit += 0.05; //moving so less accurate
+        
+        var dp = dotProduct(movevect, calcNormalVector(enemy.pos, this.pos));
+        // 1 == directly in front
+        if (dp < 0.7) {
+             tohit += 0.05;
+        }
+        if (dp < 0.0) {
+             tohit += 0.1;
+        }
+    }
+    var shot = Math.random();
+    if (shot > tohit) {
+        enemy.killed();
+        //this.killtarget = -1;
+    }
+    this.fired = Date.now();
+};
+game.Thing.prototype.getOpposingSoldiers = function() {
+    if (this.enemy == true) {
+        return gWorld.friendlies;
+    } else {
+        return gWorld.enemies;
+    }
+}
+game.Soldier.prototype.findSoldiersNearby = function() {
+    var coll = this.getOpposingSoldiers();
     return findPointsNearby(this.pos, gWorld.soldier_firerange, coll);
 }
 //}());

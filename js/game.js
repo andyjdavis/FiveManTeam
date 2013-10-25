@@ -45,7 +45,15 @@ function onKeyDown(event) {
         gWorld.state.setState(gWorld.state.states.INGAME_PAUSED);
     } else if (state == gWorld.state.states.INGAME_PAUSED && event.keyCode == 80) {
         gWorld.state.setState(gWorld.state.states.INGAME_RUNNING);
-    }
+    } else if (state == gWorld.state.states.BETWEENLEVELS) {
+        if (event.keyCode == 49) {
+            if (friendliesAlive()) {
+                loadLevel(true);
+            } else {
+                loadLevel();
+            }
+        }
+    } 
     gWorld.keyState[event.keyCode] = true;
 }
 function onKeyUp(event) {
@@ -124,21 +132,22 @@ window.addEventListener('keyup', onKeyUp, false);
 gCanvas.addEventListener('click', onMouseClick);
 
 function newGame() {
-    //gWorld.level = 0;
-    gWorld.state.setState(gWorld.state.states.INGAME_PAUSED);
+    gWorld.level = 1;
     loadLevel();
     
     //gSounds.play("music", true);
-    //spawnMonster();
 }
-function loadLevel() {
+function loadLevel(nextlevel) {
+    if (nextlevel == true) {
+        gWorld.level++;
+    }
+    console.log("level "+gWorld.level);
     
-    //gWorld.level++;
     gWorld.friendlies = Array();
     gWorld.enemies = Array();
     //gWorld.projectiles = Array();
     //sgWorld.explosions = Array();
-    gWorld.AI = new game.IntelligenceManager(gWorld.enemies, gWorld.friendlies);
+    gWorld.AI = new game.IntelligenceManager(gWorld.enemies, gWorld.friendlies, gWorld.level);
     
     var x = 250;
     var y = gCanvas.height - 40;
@@ -156,6 +165,7 @@ function loadLevel() {
         s.enemy = true;
         gWorld.enemies.push(s);
     }
+    gWorld.state.setState(gWorld.state.states.INGAME_PAUSED);
 }
 
 function updateGame(dt) {
@@ -186,16 +196,11 @@ function updateGame(dt) {
     for (var i in gWorld.enemies) {
         gWorld.enemies[i].update(dt);
     }
-    /*for (var i = gWorld.projectiles.length - 1;i >= 0;i--) {
-        if (gWorld.projectiles[i].update(dt) == false) {
-            gWorld.projectiles.splice(i, 1);
-        }
+    
+    // check for victory
+    if (friendliesAlive() == false || enemiesAlive() == false) {
+        gWorld.state.setState(gWorld.state.states.BETWEENLEVELS);
     }
-    for (var i = gWorld.explosions.length - 1;i >= 0;i--) {
-        if (gWorld.explosions[i].update(dt) == false) {
-            gWorld.explosions.splice(i, 1);
-        }
-    }*/
 }
 
 /*function checkCollisions() {
@@ -239,6 +244,26 @@ function drawInstructions(showImages) {
         //gContext.drawImage(gImages.getImage('starship'), gCanvas.width - 80, gCanvas.height/2, 30, 30);
     }
 }
+function friendliesAlive() {
+    var alive = false;
+    for (var i in gWorld.friendlies) {
+        if (gWorld.friendlies[i].dead == false) {
+            alive = true;
+            break;
+        }
+    }
+    return alive;
+}
+function enemiesAlive() {
+    var alive = false;
+    for (var i in gWorld.enemies) {
+        if (gWorld.enemies[i].dead == false) {
+            alive = true;
+            break;
+        }
+    }
+    return alive;
+}
 function drawGame() {
     //var img = gWorld.images.getImage('background');
     //if (img) {
@@ -263,11 +288,11 @@ function drawGame() {
     } else if (state == gWorld.state.states.PREGAME) {
         drawInstructions(true);
         drawText(gContext, "Press 1 to begin", gWorld.textfont, "white", gCanvas.width/3, 400);
-    } else if (state == gWorld.state.states.INGAME_RUNNING || state == gWorld.state.states.INGAME_PAUSED) {
+    } else if (state == gWorld.state.states.INGAME_RUNNING
+               || state == gWorld.state.states.INGAME_PAUSED
+               || state == gWorld.state.states.BETWEENLEVELS) {
         drawBox(gContext, 1, 1, gCanvas.width-2, gCanvas.height-2, "blue");
-        /*for (var i in gWorld.projectiles) {
-            gWorld.projectiles[i].draw();
-        }*/
+
         gContext.fillStyle = 'blue';
         gContext.strokeStyle = 'blue';
         for (var i in gWorld.friendlies) {
@@ -280,6 +305,10 @@ function drawGame() {
         gContext.fillStyle = 'red';
         gContext.strokeStyle = 'red';
         for (var i in gWorld.enemies) {
+            if (gWorld.enemies[i].dead) {
+                gWorld.enemies[i].draw();
+                continue;
+            }
             for (var j in gWorld.friendlies) {
                 if (gWorld.friendlies[j].dead == true) {
                     continue;
@@ -294,8 +323,22 @@ function drawGame() {
 
         if (state == gWorld.state.states.INGAME_PAUSED) {
             drawText(gContext, "Paused", "Arial", "White", gCanvas.width/2-50, gCanvas.height/2);
+        } else if (state == gWorld.state.states.BETWEENLEVELS) {
+            if (friendliesAlive()){
+                drawText(gContext, "Nicely handled.", "italic "+gWorld.textfont, gWorld.textcolor, gCanvas.width/6, 100);
+                if (gWorld.level < 7) {
+                    drawText(gContext, "Tier "+gWorld.level+" surpassed", "italic "+gWorld.textfont, gWorld.textcolor, gCanvas.width/6, 125);
+                }
+                drawText(gContext, "Press 1 for your next challenge", "italic "+gWorld.textfont, gWorld.textcolor, gCanvas.width/6, 150);
+                if (gWorld.level == 6) {
+                    drawText(gContext, "You have surpassed the highest level.", gWorld.textfont, gWorld.textcolor, gCanvas.width/6, 200);
+                    drawText(gContext, "You can continue to practice with random opponents.", gWorld.textfont, gWorld.textcolor, gCanvas.width/6, 225);
+                }
+            } else if (enemiesAlive()) {
+                drawText(gContext, "It seems you have some learning to do.", "italic "+gWorld.textfont, gWorld.textcolor, gCanvas.width/6, 100);
+                drawText(gContext, "Press 1 to try again.", "italic "+gWorld.textfont, gWorld.textcolor, gCanvas.width/6, 125);
+            }
         }
-
     } else if (state == gWorld.state.states.END) {
         drawText(gContext, "Five Man Team", gWorld.textfont, gWorld.textcolor, gCanvas.width/3, 100);
         //drawText(gContext, "You left "+gWorld.score+" flaming corpses in your wake.", gWorld.textfont, gWorld.textcolor, 50, 200);

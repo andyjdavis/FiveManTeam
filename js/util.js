@@ -35,15 +35,18 @@ function angleToVector(ang) {
 function calcDistance(vect) {
     return Math.sqrt(Math.pow(vect[0], 2) + Math.pow(vect[1], 2));
 }
-function calcVector(p1, p2) {
-    return [p1[0] - p2[0], p1[1] - p2[1]];
+function calcVector(dest, src) {
+    return [dest[0] - src[0], dest[1] - src[1]];
 }
-function calcNormalVector(p1, p2) {
-    var vect = calcVector(p1, p2);
+function calcNormalVector(dest, src) {
+    var vect = calcVector(dest, src);
     var h = calcDistance(vect);
     vect[0] = vect[0] / h;
     vect[1] = vect[1] / h;
     return vect;
+}
+function dotProduct(v1, v2) {
+    return v1[0]*v2[0] + v1[1]*v2[1];
 }
 function randomProperty(obj) {
     var keys = Object.keys(obj)
@@ -76,7 +79,7 @@ function findPointsNearby(pos, radius, coll) {
     var found = new Array();
 
     for (var i in coll) {
-        if (coll[i].dead) {
+        if (coll[i].dead == true) {
             continue;
         }
         if (calcDistance(calcVector(pos, coll[i].pos)) < radius) {

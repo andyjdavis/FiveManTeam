@@ -64,22 +64,6 @@ game.Thing.prototype.collideThing = function(other) {
         return true;
     }
 }
-game.Thing.prototype.fire = function(i) {
-    this.fired = Date.now();
-    this.vel = [0, 0];
-    if (Math.random() > this.accuracy()) {
-        this.getOpposingSoldiers()[i].killed();
-        this.killtarget = -1;
-        console.log("killed target");
-    }
-}
-game.Thing.prototype.getOpposingSoldiers = function() {
-    if (this.enemy == true) {
-        return gWorld.friendlies;
-    } else {
-        return gWorld.enemies;
-    }
-}
 game.Thing.prototype.killed = function() {
     this.dead = true;
     this.vel = [0, 0];
