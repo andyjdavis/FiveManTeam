@@ -42,7 +42,6 @@ game.IntelligenceManager = function(mine, other, level) {
     }
 };
 game.IntelligenceManager.prototype.setState = function(s) {
-    console.log("setting intel state "+s);
     this.state = s; //should be doing some checking here
     //this.setup = false;
 };

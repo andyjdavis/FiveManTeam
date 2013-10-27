@@ -92,7 +92,6 @@ function onMouseClick(event) {
         for (var i = gWorld.friendlies.length -1; i >= 0; i--) {
             var d = calcDistance(calcVector(target, gWorld.friendlies[i].pos));
             if (d < 10) {
-                console.log("selected soldier");
                 gWorld.selected = i;
                 selected = true;
                 break;
@@ -113,7 +112,6 @@ function onMouseClick(event) {
             }*/
         }
         if (selected == false && gWorld.selected != -1) {
-            console.log("assigning moveto");
             gWorld.friendlies[gWorld.selected].moveto.push(target);
         }
         
@@ -141,7 +139,6 @@ function loadLevel(nextlevel) {
     if (nextlevel == true) {
         gWorld.level++;
     }
-    console.log("level "+gWorld.level);
     
     gWorld.friendlies = Array();
     gWorld.enemies = Array();
