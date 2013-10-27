@@ -331,8 +331,8 @@ function drawGame() {
                 }
                 drawText(gContext, "Press 1 for your next challenge", "italic "+gWorld.textfont, gWorld.textcolor, gCanvas.width/6, 150);
                 if (gWorld.level == 6) {
-                    drawText(gContext, "You have surpassed the highest level.", gWorld.textfont, gWorld.textcolor, gCanvas.width/6, 200);
-                    drawText(gContext, "You can continue to practice with random opponents.", gWorld.textfont, gWorld.textcolor, gCanvas.width/6, 225);
+                    drawText(gContext, "Applicant, you have completed the assessment.", gWorld.textfont, gWorld.textcolor, gCanvas.width/6, 200);
+                    drawText(gContext, "If you wish, you can continue to practice.", gWorld.textfont, gWorld.textcolor, gCanvas.width/6, 225);
                 }
             } else if (enemiesAlive()) {
                 drawText(gContext, "It seems you have some learning to do.", "italic "+gWorld.textfont, gWorld.textcolor, gCanvas.width/6, 100);
