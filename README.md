@@ -1,6 +1,8 @@
 Five Man Team
 
-You control the movements of a five man team. They will automatically fire on enemies they encounter.
+The is an extremely basic proof of concept for a real time strategy game. Play it at http://www.thetravelingprogrammer.com/files/FiveManTeam/
+
+You control the movements of a five unit team. They will automatically fire on enemies they encounter.
 
 Their fire is most accurate when they are stationary and can fire in any direction.
 They are less accurate when moving and less accurate again if they have to fire behind themselves while moving.
